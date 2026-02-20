@@ -1,0 +1,17 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const bookRoutes_1 = __importDefault(require("./routes/bookRoutes"));
+const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const loanRoutes_1 = __importDefault(require("./routes/loanRoutes"));
+const errorMiddleware_1 = require("./middleware/errorMiddleware");
+const app = (0, express_1.default)();
+app.use(express_1.default.json());
+app.use('/books', bookRoutes_1.default);
+app.use('/users', userRoutes_1.default);
+app.use('/loans', loanRoutes_1.default);
+app.use(errorMiddleware_1.errorHandler);
+exports.default = app;
