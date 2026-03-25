@@ -1,33 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
-
 import { loanService } from '../services/loanService';
 
 export const loanController = {
-    getAll: (req: Request, res: Response, next: NextFunction) => {
+    getAll: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.json(loanService.getAll());
-        } catch (err) {
-            next(err);
-        }
-
-    },
-
-    create: (req: Request, res: Response, next: NextFunction) => {
-        try {
-            res.status(201).json(loanService.create(req.body));
+            res.json(await loanService.getAll(req.user!.userId, req.user!.role));
         } catch (err) {
             next(err);
         }
     },
 
-
-
-    returnBook: (req: Request, res: Response, next: NextFunction) => {
+    create: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.json(loanService.returnBook(req.params.id));
+            res.status(201).json(await loanService.create({ ...req.body, userId: req.user!.userId }));
         } catch (err) {
             next(err);
         }
     },
 
+    returnBook: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            res.json(await loanService.returnBook(req.params.id, req.user!.userId, req.user!.role));
+        } catch (err) {
+            next(err);
+        }
+    },
 };

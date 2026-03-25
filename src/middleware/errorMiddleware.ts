@@ -16,9 +16,13 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
         return res.status(404).json({ error: err.message });
     }
 //todo loan
-    const businessErrors = ['Book is not available', 'Book already on loan'];
+    const businessErrors = ['Book is not available', 'Book already on loan', 'Email already in use'];
     if (businessErrors.includes(err.message)) {
         return res.status(422).json({ error: err.message });
+    }
+
+    if (err.message === 'Invalid email or password') {
+        return res.status(401).json({ error: err.message });
     }
 
 

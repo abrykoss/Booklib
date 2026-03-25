@@ -1,35 +1,28 @@
-import { books } from '../storage/inMemoryStorage';
-import { Book } from '../types';
-import { createBookSchema, updateBookSchema } from '../schemas/bookSchema';
-import { randomUUID } from 'crypto';
+import prisma from '../db/prisma';
 
 export const bookService = {
-    getAll: () => Array.from(books.values()),
+    getAll: async () => prisma.book.findMany(),
 
-    getById: (id: string) => books.get(id),
-
-    create: (data: unknown) => {
-        const validated = createBookSchema.parse(data);
-        const book: Book = {
-            id: randomUUID(),
-            ...validated,
-            available: true,
-        };
-        books.set(book.id, book);
+    getById: async (id: string) => {
+        const book = await prisma.book.findUnique({ where: { id } });
+        if (!book) throw new Error('Book not found');
         return book;
     },
 
-    update: (id: string, data: unknown) => {
-        const book = books.get(id);
+
+
+    create: async (data: { title: string; author: string; year: number; isbn: string }) =>
+        prisma.book.create({ data }),
+
+    update: async (id: string, data: Partial<{ title: string; author: string; year: number; isbn: string }>) => {
+        const book = await prisma.book.findUnique({ where: { id } });
         if (!book) throw new Error('Book not found');
-        const validated = updateBookSchema.parse(data);
-        const updated = { ...book, ...validated };
-        books.set(id, updated);
-        return updated;
+        return prisma.book.update({ where: { id }, data });
     },
 
-    delete: (id: string) => {
-        if (!books.has(id)) throw new Error('Book not found');
-        books.delete(id);
+    delete: async (id: string) => {
+        const book = await prisma.book.findUnique({ where: { id } });
+        if (!book) throw new Error('Book not found');
+        return prisma.book.delete({ where: { id } });
     },
 };

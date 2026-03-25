@@ -1,50 +1,47 @@
 import { Request, Response, NextFunction } from 'express';
 import { bookService } from '../services/bookService';
 
-
 export const bookController = {
-    getAll: (req: Request, res: Response, next: NextFunction) => {
+    getAll: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.json(bookService.getAll());
+            const books = await bookService.getAll();
+            res.json(books);
         } catch (err) {
             next(err);
         }
     },
 
-    getById: (req: Request, res: Response, next: NextFunction) => {
+    getById: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const book = bookService.getById(req.params.id);
-            book ? res.json(book) : res.status(404).json({ error: 'Book not found' });
-        } catch (err) {
-
-            next(err);
-        }
-
-    },
-
-    create: (req: Request, res: Response, next: NextFunction) => {
-        try {
-            res.status(201).json(bookService.create(req.body));
+            const book = await bookService.getById(req.params.id);
+            res.json(book);
         } catch (err) {
             next(err);
         }
     },
 
-    update: (req: Request, res: Response, next: NextFunction) => {
+    create: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const updated = bookService.update(req.params.id, req.body);
+            const newBook = await bookService.create(req.body);
+            res.status(201).json(newBook);
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    update: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const updated = await bookService.update(req.params.id, req.body);
             res.json(updated);
         } catch (err) {
-
             next(err);
         }
     },
 
-
-    //todo
-    delete: (req: Request, res: Response, next: NextFunction) => {
+    // todo
+    delete: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            bookService.delete(req.params.id);
+            await bookService.delete(req.params.id);
             res.status(204).send();
         } catch (err) {
             next(err);
