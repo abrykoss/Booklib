@@ -20,4 +20,20 @@ export const authController = {
         }
     },
 
+    requestPasswordReset: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            res.json(await authService.requestPasswordReset(req.body));
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    resetPassword: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            res.json(await authService.resetPassword(req.body));
+        } catch (err) {
+            next(err);
+        }
+    },
+
 };

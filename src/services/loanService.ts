@@ -1,16 +1,17 @@
 import prisma from '../db/prisma';
+import { AppError } from '../errors/AppError';
 
 export const loanService = {
     create: async (data: { bookId: string; userId: string }) => {
         const book = await prisma.book.findUnique({ where: { id: data.bookId } });
-        if (!book) throw new Error('Book not found');
-        if (!book.available) throw new Error('Book is not available');
+        if (!book) throw new AppError('Book not found', 404);
+        if (!book.available) throw new AppError('Book is not available', 409);
 
 
         const activeLoan = await prisma.loan.findFirst({
             where: { bookId: data.bookId, status: 'ACTIVE' },
         });
-        if (activeLoan) throw new Error('Book already on loan');
+        if (activeLoan) throw new AppError('Book already on loan', 409);
 
         const loan = await prisma.loan.create({
             data: { userId: data.userId, bookId: data.bookId, status: 'ACTIVE' },
@@ -24,9 +25,9 @@ export const loanService = {
 
     returnBook: async (loanId: string, userId: string, role: string) => {
         const loan = await prisma.loan.findUnique({ where: { id: loanId } });
-        if (!loan || loan.status === 'RETURNED') throw new Error('Loan not found or already returned');
+        if (!loan || loan.status === 'RETURNED') throw new AppError('Loan not found or already returned', 404);
 
-        if (role !== 'ADMIN' && loan.userId !== userId) throw new Error('Loan not found or already returned');
+        if (role !== 'ADMIN' && loan.userId !== userId) throw new AppError('Loan not found or already returned', 404);
 
         const updatedLoan = await prisma.loan.update({
             where: { id: loanId },

@@ -37,4 +37,24 @@ export const userController = {
             next(err);
         }
     },
+
+    uploadAvatar: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) {
+                res.status(400).json({ error: 'No file uploaded' });
+                return;
+            }
+            res.json(await userService.uploadAvatar(req.user!.userId, req.file.filename));
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    deleteAvatar: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            res.json(await userService.deleteAvatar(req.user!.userId));
+        } catch (err) {
+            next(err);
+        }
+    },
 };
